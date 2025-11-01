@@ -3,6 +3,7 @@ import { useAccount, useChainId } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import logo from './assets/bitguess_logo_white.png'
 import { SUPPORTED_CHAINS } from './constants/contracts'
+import {MarketCard} from './components/MarketCard'
 
 function App() {
   const { isConnected } = useAccount()
@@ -23,9 +24,38 @@ function App() {
         </header>
 
         <main className='flex-1 w-full mx-auto px-4 sm:px-6 lg:px-26 text-white'>
-          <p className='text-xl'>Bitguess</p>
-          <p className='text-sm text-gray-400'>Chain: {chainName}</p>
-          {isConnected && <p className='text-green-400'>Wallet connected ✅</p>}
+          <div className='flex flex-wrap gap-6 justify-center mt-4'>
+            <div className='flex flex-wrap gap-6 justify-center'>
+
+            <MarketCard
+              market={{
+                id: 1,
+                title: 'Will BTC close above $35,000 on Dec 15?',
+                deadline: 'Dec 15, 2025',
+                volume: 1200,
+                yesQty: 34,
+                noQty: 22,
+                resolved: false,
+              }}
+              onStakeYes={() => console.log('YES')}
+              onStakeNo={() => console.log('NO')}
+            />
+            <MarketCard
+              market={{
+                id: 1,
+                title: 'Will BTC close above $35,000 on Dec 15?',
+                deadline: 'Dec 15, 2025',
+                volume: 1200,
+                yesQty: 34,
+                noQty: 22,
+                resolved: true,
+                outcome: 'YES',
+              }}
+              onStakeYes={() => console.log('YES')}
+              onStakeNo={() => console.log('NO')}
+            />
+            </div>
+          </div>
         </main>
       </div>
     </>
