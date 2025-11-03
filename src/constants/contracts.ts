@@ -12,8 +12,8 @@ export const SUPPORTED_CHAINS: Record<number, ChainContracts> = {
   },
   31337: {
     name: 'Anvil',
-    bitguess: '0x5fc8d32690cc91d4c39d9d3abcbd16989f875707', // TODO: update
-    usdc: '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9', // TODO: update
+    bitguess: '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0', // TODO: update
+    usdc: '0x5fbdb2315678afecb367f032d93f642f64180aa3', // TODO: update
   },
   // TODO: add support for Polygon Amoy
   80002: {

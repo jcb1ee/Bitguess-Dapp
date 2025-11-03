@@ -7,9 +7,13 @@ import logo from './assets/bitguess_logo_white.png'
 import { SUPPORTED_CHAINS } from './constants/contracts'
 import {MarketCard} from './components/MarketCard'
 import type { Market } from './types/market'
+import BitGuessAbi from './abi/BitGuess.json'
+import UsdcAbi from './abi/MockUSDC.json'
+import { config } from './configs'
+import { writeContract, waitForTransactionReceipt, readContract} from '@wagmi/core'
 
 function App() {
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const chainId = useChainId()
   const contracts = SUPPORTED_CHAINS[chainId]
   const chainName = contracts ? contracts.name : 'Unsupported Chain'
@@ -36,7 +40,7 @@ function App() {
     setShowModal(true)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !deadline.trim()) {
       alert('All fields are required.')
       return
@@ -56,8 +60,37 @@ function App() {
       return
     }
 
-    // TODO: handle submit
-    alert(`Submitting: ${title} @p: ${targetPrice} on ${deadline}`)
+    try {
+      const approveTx = await  writeContract(config, {
+        abi: UsdcAbi,
+        address: contracts.usdc as `0x${string}`,
+        functionName: 'approve',
+        args: [contracts.bitguess, BigInt(1e6)], // 1 USDC
+        account: address,
+      })
+      const approveReceipt = await waitForTransactionReceipt(config, { hash: approveTx })
+      console.log('✅ USDC approved receipt:', approveReceipt)
+
+      const createTx = await writeContract(config, {
+        abi: BitGuessAbi,
+        address: contracts.bitguess as `0x${string}`,
+        functionName: 'createMarket',
+        args: [
+          title,
+          BigInt(targetPrice), // TODO: handle decimals
+          BigInt(deadlineTime / 1000)  // convert to UNIX timestamp,
+        ],
+      })
+      const receipt = await waitForTransactionReceipt(config, { hash: createTx })
+      console.log('✅ Market created:', receipt)
+
+      console.log('tx hash', createTx)
+      alert('Market submitted!')
+      
+    } catch (err) {
+      console.error('Error creating market:', err)
+    }
+
     setShowModal(false)
     setTitle('')
     setTargetPrice('')
@@ -87,12 +120,12 @@ function App() {
           {/* All Markets */}
           <div className='flex flex-wrap gap-6 justify-center mt-4'>
             <div className='flex flex-wrap gap-6 justify-center'>
-            {/* TODO: fetch and iterate */}
             {markets.map((market) => (
               <MarketCard
                 key={market.id}
                 market={{
                   id: Number(market.id),
+                  price: Number(market.targetPrice),
                   title: market.question,
                   deadline: new Date(parseInt(market.deadline) * 1000).toLocaleDateString(), // convert UNIX timestamp
                   volume: 0,     // TODO: replace with actual value if available

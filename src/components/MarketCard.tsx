@@ -8,6 +8,7 @@ export function MarketCard({
   market: {
     id: number
     title: string
+    price: number
     deadline: string
     volume: number
     yesQty: number
@@ -33,6 +34,7 @@ export function MarketCard({
       {/* Info Row */}
       <div className='text-sm text-gray-400 flex flex-wrap gap-4'>
         <span>⏰ Deadline: {market.deadline}</span>
+        <span>🎯 Target Price: {market.price} USDC</span>
         <span>💰 Volume: {market.volume} USDC</span>
         <span>✅ Yes: {market.yesQty}</span>
         <span>❌ No: {market.noQty}</span>
