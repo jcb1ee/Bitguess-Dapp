@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAccount, useChainId } from 'wagmi'
+import { fetchAllMarkets } from './graph/graphService'
 // import { Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import logo from './assets/bitguess_logo_white.png'
 import { SUPPORTED_CHAINS } from './constants/contracts'
 import {MarketCard} from './components/MarketCard'
+import type { Market } from './types/market'
 
 function App() {
   const { isConnected } = useAccount()
@@ -16,6 +18,15 @@ function App() {
   const [title, setTitle] = useState('')
   const [targetPrice, setTargetPrice] = useState('')
   const [deadline, setDeadline] = useState('')
+
+  const [markets, setMarkets] = useState<Market[]>([])
+    useEffect(() => {
+    fetchAllMarkets(chainId)
+      .then(setMarkets)
+      .catch(err => {
+        console.error('Failed to fetch markets:', err)
+      })
+  }, [chainId])
 
   const handleCreateClick = () => {
     if (!isConnected || chainName === 'Unsupported Chain') {
@@ -77,33 +88,22 @@ function App() {
           <div className='flex flex-wrap gap-6 justify-center mt-4'>
             <div className='flex flex-wrap gap-6 justify-center'>
             {/* TODO: fetch and iterate */}
-            <MarketCard
-              market={{
-                id: 1,
-                title: 'Will BTC close above $35,000 on Dec 15?',
-                deadline: 'Dec 15, 2025',
-                volume: 1200,
-                yesQty: 34,
-                noQty: 22,
-                resolved: false,
-              }}
-              onStakeYes={() => console.log('YES')}
-              onStakeNo={() => console.log('NO')}
-            />
-            <MarketCard
-              market={{
-                id: 1,
-                title: 'Will BTC close above $35,000 on Dec 15?',
-                deadline: 'Dec 15, 2025',
-                volume: 1200,
-                yesQty: 34,
-                noQty: 22,
-                resolved: true,
-                outcome: 'YES',
-              }}
-              onStakeYes={() => console.log('YES')}
-              onStakeNo={() => console.log('NO')}
-            />
+            {markets.map((market) => (
+              <MarketCard
+                key={market.id}
+                market={{
+                  id: Number(market.id),
+                  title: market.question,
+                  deadline: new Date(parseInt(market.deadline) * 1000).toLocaleDateString(), // convert UNIX timestamp
+                  volume: 0,     // TODO: replace with actual value if available
+                  yesQty: 0,     // TODO: fetch from subgraph or calculate
+                  noQty: 0,      // TODO: fetch from subgraph or calculate
+                  resolved: market.resolved,
+                }}
+                onStakeYes={() => console.log(`Stake YES on market ${market.id}`)}
+                onStakeNo={() => console.log(`Stake NO on market ${market.id}`)}
+              />
+            ))}
             </div>
           </div>
           {/* Modal */}
