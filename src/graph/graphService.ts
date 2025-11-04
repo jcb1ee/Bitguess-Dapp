@@ -8,7 +8,7 @@ type GetMarketsResponse = {
 }
 
 export async function fetchAllMarkets(chainId: number): Promise<Market[]> {
-  const subgraph = SUBGRAPH_URLS[31337] //TODO: replace with chainId when ready
+  const subgraph = SUBGRAPH_URLS[chainId]
 
   if (!subgraph || !subgraph.url) {
     throw new Error(`Subgraph client not found for chainId ${chainId}`)

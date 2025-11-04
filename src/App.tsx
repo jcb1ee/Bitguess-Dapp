@@ -7,10 +7,13 @@ import logo from './assets/bitguess_logo_white.png'
 import { SUPPORTED_CHAINS } from './constants/contracts'
 import {MarketCard} from './components/MarketCard'
 import type { Market } from './types/market'
-import BitGuessAbi from './abi/BitGuess.json'
+import BitguessAbi from './abi/BitGuess.json'
 import UsdcAbi from './abi/MockUSDC.json'
 import { config } from './configs'
-import { writeContract, waitForTransactionReceipt, readContract} from '@wagmi/core'
+import { writeContract, waitForTransactionReceipt } from '@wagmi/core'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 
 function App() {
   const { isConnected, address } = useAccount()
@@ -51,13 +54,13 @@ function App() {
       return
     }
 
-    const deadlineTime = new Date(deadline).getTime()
-    const now = Date.now()
-    const tenMinutes = 10 * 60 * 1000
+    const deadlineTime = dayjs(deadline).utc().valueOf(); // UTC timestamp in ms
+    const now = dayjs().utc().valueOf();
+    const tenMinutes = 10 * 60 * 1000;
 
     if (deadlineTime - now < tenMinutes) {
-      alert('Deadline must be at least 10 minutes from now.')
-      return
+      alert('Deadline must be at least 10 minutes from now.');
+      return;
     }
 
     try {
@@ -72,13 +75,13 @@ function App() {
       console.log('✅ USDC approved receipt:', approveReceipt)
 
       const createTx = await writeContract(config, {
-        abi: BitGuessAbi,
+        abi: BitguessAbi,
         address: contracts.bitguess as `0x${string}`,
         functionName: 'createMarket',
         args: [
           title,
           BigInt(targetPrice), // TODO: handle decimals
-          BigInt(deadlineTime / 1000)  // convert to UNIX timestamp,
+          BigInt(dayjs(deadline).unix())  // convert to UNIX timestamp,
         ],
       })
       const receipt = await waitForTransactionReceipt(config, { hash: createTx })
@@ -124,17 +127,16 @@ function App() {
               <MarketCard
                 key={market.id}
                 market={{
-                  id: Number(market.id),
+                  id: market.id,
                   price: Number(market.targetPrice),
                   title: market.question,
-                  deadline: new Date(parseInt(market.deadline) * 1000).toLocaleDateString(), // convert UNIX timestamp
+                  deadline: market.deadline, // convert UNIX timestamp
                   volume: Number(market.volume),
                   yesQty: Number(market.yesQty),
                   noQty: Number(market.noQty),
                   resolved: market.resolved,
                 }}
-                onStakeYes={() => console.log(`Stake YES on market ${market.id}`)}
-                onStakeNo={() => console.log(`Stake NO on market ${market.id}`)}
+                contracts={contracts}
               />
             ))}
             </div>
