@@ -11,6 +11,9 @@ export const GET_MARKETS = gql`
       outcome
       createdAt
       resolvedAt
+      volume
+      yesQty
+      noQty
     }
   }
 `

@@ -128,9 +128,9 @@ function App() {
                   price: Number(market.targetPrice),
                   title: market.question,
                   deadline: new Date(parseInt(market.deadline) * 1000).toLocaleDateString(), // convert UNIX timestamp
-                  volume: 0,     // TODO: replace with actual value if available
-                  yesQty: 0,     // TODO: fetch from subgraph or calculate
-                  noQty: 0,      // TODO: fetch from subgraph or calculate
+                  volume: Number(market.volume),
+                  yesQty: Number(market.yesQty),
+                  noQty: Number(market.noQty),
                   resolved: market.resolved,
                 }}
                 onStakeYes={() => console.log(`Stake YES on market ${market.id}`)}

@@ -7,4 +7,7 @@ export type Market = {
   outcome: boolean | null
   createdAt: string
   resolvedAt: string | null
+  volume: string
+  yesQty: string
+  noQty: string
 }
