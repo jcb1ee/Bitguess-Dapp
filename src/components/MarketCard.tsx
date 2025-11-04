@@ -1,12 +1,15 @@
 import clsx from 'clsx'
 import { writeContract, waitForTransactionReceipt } from 'wagmi/actions'
 import { parseUnits, formatUnits } from 'viem'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
 import BitguessAbi from '../abi/BitGuess.json'
 import UsdcAbi from '../abi/MockUSDC.json'
 import { config } from '../configs'
+
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(utc)
+dayjs.extend(duration)
 
 type MarketCardProps = {
   market: {
@@ -65,6 +68,26 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
     }
   }
 
+  function getTimeLeft(deadline: number): string {
+    const now = dayjs.utc()
+    const end = dayjs.unix(deadline).utc()
+    const diff = end.diff(now)
+
+    if (diff <= 0) return 'Deadline passed'
+
+    const dur = dayjs.duration(diff)
+    const days = dur.days()
+    const hours = dur.hours()
+    const minutes = dur.minutes()
+
+    const parts = []
+    if (days > 0) parts.push(`${days}d`)
+    if (hours > 0) parts.push(`${hours}h`)
+    if (minutes > 0) parts.push(`${minutes}m`)
+
+    return parts.join(' ') || 'Less than a minute'
+  }
+
   return (
     <div className='rounded-xl border border-white/10 bg-neutral-800 p-6 shadow-md flex flex-col gap-4 m-4 w-full sm:w-[300px]'>
       {/* Header */}
@@ -80,6 +103,9 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
       {/* Info Row */}
       <div className='text-sm text-gray-400 flex flex-wrap gap-4'>
         <span>⏰ Deadline: {dayjs.unix(Number(market.deadline)).utc().format('YYYY-MM-DD HH:mm')} (UTC)</span>
+        <span className='text-sm text-gray-400'>
+          🕒 Time Left: {getTimeLeft(Number(market.deadline))}
+        </span>
         <span>🎯 Target Price: {market.price} USDC</span>
         <span>💰 Volume: {formatUnits(BigInt(market.volume), 6)} USDC</span>
         <span>✅ Yes: {market.yesQty}</span>

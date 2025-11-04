@@ -135,6 +135,7 @@ function App() {
                   yesQty: Number(market.yesQty),
                   noQty: Number(market.noQty),
                   resolved: market.resolved,
+                  outcome: market.outcome ? 'YES' : 'NO',
                 }}
                 contracts={contracts}
               />
