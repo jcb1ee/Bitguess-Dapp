@@ -1,5 +1,7 @@
 import clsx from 'clsx'
-import { writeContract, waitForTransactionReceipt } from 'wagmi/actions'
+import { useState, useEffect } from 'react'
+import { useAccount } from 'wagmi'
+import { writeContract, waitForTransactionReceipt, readContract } from 'wagmi/actions'
 import { parseUnits, formatUnits } from 'viem'
 import BitguessAbi from '../abi/BitGuess.json'
 import UsdcAbi from '../abi/MockUSDC.json'
@@ -30,12 +32,46 @@ type MarketCardProps = {
 }
 
 export function MarketCard({ market, contracts }: MarketCardProps) {
+  const { isConnected, address } = useAccount()
   const OUTCOME_YES = 0;
   const OUTCOME_NO = 1;
 
   const deadline = dayjs.unix(Number(market.deadline)).utc()
   const now = dayjs.utc()
   const isStakingDisabled = now.isAfter(deadline) || market.resolved
+
+  const [claimable, setClaimable] = useState<bigint>(0n)
+  const [claimed, setClaimed] = useState(false)
+
+  useEffect(() => {
+    if (market.resolved && isConnected && address) {
+      (async () => {
+        try {
+          // Check if user already claimed
+          const hasClaimed = await readContract(config, {
+            abi: BitguessAbi,
+            address: contracts.bitguess as `0x${string}`,
+            functionName: 's_claimed',
+            args: [BigInt(market.id), address],
+          })
+
+          setClaimed(hasClaimed as boolean)
+
+          // Check claimable amount (optional if already claimed)
+          const claimableAmount = await readContract(config, {
+            abi: BitguessAbi,
+            address: contracts.bitguess as `0x${string}`,
+            functionName: 'claimableAmount',
+            args: [BigInt(market.id), address],
+          })
+
+          setClaimable(claimableAmount as bigint)
+        } catch (err) {
+          console.error('Error checking claim status:', err)
+        }
+      })()
+    }
+  }, [market.id, market.resolved, isConnected, address, config, contracts.bitguess])
 
   async function stakeOnMarket(
     marketId: string,
@@ -92,6 +128,26 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
     return parts.join(' ') || 'Less than a minute'
   }
 
+  async function handleClaim() {
+    try {
+      const txHash = await writeContract(config, {
+        abi: BitguessAbi,
+        address: contracts.bitguess as `0x${string}`,
+        functionName: 'claimWinnings',
+        args: [market.id],
+      })
+
+      const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+      console.log('✅ Claimed winnings:', receipt)
+      alert('Rewards claimed!')
+
+      setClaimed(true)
+    } catch (err) {
+      console.error('❌ Error claiming winnings:', err)
+      alert('Error claiming winnings.')
+    }
+  }
+
   return (
     <div className='rounded-xl border border-white/10 bg-neutral-800 p-6 shadow-md flex flex-col gap-4 m-4 w-full sm:w-[300px]'>
       {/* Header */}
@@ -144,6 +200,24 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
               Stake NO
             </button>
           </div>
+        )}
+        {market.resolved && (
+          <>
+            {claimed ? (
+              <p className='text-green-400 font-medium mt-2'>
+                ✅ You claimed your winnings of {Number(claimable) / 1e6} USDC.
+              </p>
+            ) : claimable && claimable > 0n ? (
+              <button
+                onClick={handleClaim}
+                className='w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition'
+              >
+                🎉 Claim Reward ({Number(claimable) / 1e6} USDC)
+              </button>
+            ) : (
+              <p className='text-gray-400 mt-2 italic'>You have no winnings to claim for this market.</p>
+            )}
+          </>
         )}
       </div>
     </div>
