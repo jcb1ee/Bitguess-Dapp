@@ -33,6 +33,10 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
   const OUTCOME_YES = 0;
   const OUTCOME_NO = 1;
 
+  const deadline = dayjs.unix(Number(market.deadline)).utc()
+  const now = dayjs.utc()
+  const isStakingDisabled = now.isAfter(deadline) || market.resolved
+
   async function stakeOnMarket(
     marketId: string,
     outcome: 0 | 1,
@@ -126,14 +130,16 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
         ) : (
           <div className='flex gap-4 mt-2'>
             <button
+              disabled={isStakingDisabled}
               onClick={() => stakeOnMarket(market.id.toString(), OUTCOME_YES, contracts)}
-              className='flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition'
+              className='flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-gray-500'
             >
               Stake YES
             </button>
             <button
-             onClick={() => stakeOnMarket(market.id.toString(), OUTCOME_NO, contracts)}
-              className='flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition'
+              disabled={isStakingDisabled}
+              onClick={() => stakeOnMarket(market.id.toString(), OUTCOME_NO, contracts)}
+              className='flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-gray-500'
             >
               Stake NO
             </button>
