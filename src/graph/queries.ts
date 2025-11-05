@@ -17,3 +17,16 @@ export const GET_MARKETS = gql`
     }
   }
 `
+
+export const GET_CLAIMED_REWARD = gql`
+  query ($marketId: BigInt!, $user: Bytes!) {
+    claimeds(
+      where: { marketId: $marketId, user: $user }
+      orderBy: blockTimestamp
+      orderDirection: desc
+      first: 1
+    ) {
+      reward
+    }
+  }
+`

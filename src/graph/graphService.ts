@@ -1,5 +1,5 @@
 import { SUBGRAPH_URLS } from './client'
-import { GET_MARKETS } from './queries'
+import { GET_MARKETS, GET_CLAIMED_REWARD } from './queries'
 import type { Market } from '../types/market'
 
 
@@ -24,5 +24,24 @@ export async function fetchAllMarkets(chainId: number): Promise<Market[]> {
   } catch (err) {
     console.error('❌ Failed to fetch markets:', err)
     throw err
+  }
+}
+
+export async function fetchClaimedReward(chainId: number, marketId: string, user: string): Promise<number | null> {
+  const subgraph = SUBGRAPH_URLS[chainId]
+  
+  if (!subgraph?.url) return null
+
+  try {
+    const data = await subgraph.url.request(GET_CLAIMED_REWARD, {
+      marketId,
+      user,
+    })
+
+    const reward = data?.claimeds?.[0]?.reward
+    return reward ? Number(reward) / 1e6 : null
+  } catch (err) {
+    console.error('Failed to fetch claimed reward:', err)
+    return null
   }
 }

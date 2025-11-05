@@ -1,11 +1,13 @@
 import clsx from 'clsx'
 import { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useChainId } from 'wagmi'
 import { writeContract, waitForTransactionReceipt, readContract } from 'wagmi/actions'
 import { parseUnits, formatUnits } from 'viem'
+
 import BitguessAbi from '../abi/BitGuess.json'
 import UsdcAbi from '../abi/MockUSDC.json'
 import { config } from '../configs'
+import { fetchClaimedReward } from '../graph/graphService'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -33,6 +35,7 @@ type MarketCardProps = {
 
 export function MarketCard({ market, contracts }: MarketCardProps) {
   const { isConnected, address } = useAccount()
+  const chainId = useChainId()
   const OUTCOME_YES = 0;
   const OUTCOME_NO = 1;
 
@@ -41,23 +44,18 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
   const isStakingDisabled = now.isAfter(deadline) || market.resolved
 
   const [claimable, setClaimable] = useState<bigint>(0n)
-  const [claimed, setClaimed] = useState(false)
+  const [claimedReward, setClaimedReward] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (market.resolved && address) {
+        fetchClaimedReward(chainId, market.id, address.toLowerCase()).then(setClaimedReward)
+      }
+  }, [market.resolved, market.id, address])
 
   useEffect(() => {
     if (market.resolved && isConnected && address) {
       (async () => {
         try {
-          // Check if user already claimed
-          const hasClaimed = await readContract(config, {
-            abi: BitguessAbi,
-            address: contracts.bitguess as `0x${string}`,
-            functionName: 's_claimed',
-            args: [BigInt(market.id), address],
-          })
-
-          setClaimed(hasClaimed as boolean)
-
-          // Check claimable amount (optional if already claimed)
           const claimableAmount = await readContract(config, {
             abi: BitguessAbi,
             address: contracts.bitguess as `0x${string}`,
@@ -141,7 +139,7 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
       console.log('✅ Claimed winnings:', receipt)
       alert('Rewards claimed!')
 
-      setClaimed(true)
+      setClaimable(0n)
     } catch (err) {
       console.error('❌ Error claiming winnings:', err)
       alert('Error claiming winnings.')
@@ -201,21 +199,30 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
             </button>
           </div>
         )}
+        {/* Claim Winnings */}
         {market.resolved && (
           <>
-            {claimed ? (
-              <p className='text-green-400 font-medium mt-2'>
-                ✅ You claimed your winnings of {Number(claimable) / 1e6} USDC.
-              </p>
+            {claimedReward != null ? (
+              claimedReward > 0 ? (
+                <p className='text-green-400 font-medium mt-2'>
+                  ✅ You claimed your winnings of {claimedReward} USDC.
+                </p>
+              ) : (
+                <p className='text-gray-400 mt-2 italic'>
+                  You have no winnings to claim for this market.
+                </p>
+              )
             ) : claimable && claimable > 0n ? (
               <button
                 onClick={handleClaim}
-                className='w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition'
+                className='w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition disabled:opacity-50'
               >
-                🎉 Claim Reward ({Number(claimable) / 1e6} USDC)
+                🎉 Claim Reward ({formatUnits(claimable, 6)} USDC)
               </button>
             ) : (
-              <p className='text-gray-400 mt-2 italic'>You have no winnings to claim for this market.</p>
+              <p className='text-gray-400 mt-2 italic'>
+                You have no winnings to claim for this market.
+              </p>
             )}
           </>
         )}

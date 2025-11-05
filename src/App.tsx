@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useAccount, useChainId } from 'wagmi'
+import { writeContract, waitForTransactionReceipt } from 'wagmi/actions'
 import { fetchAllMarkets } from './graph/graphService'
 // import { Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+
 import logo from './assets/bitguess_logo_white.png'
 import { SUPPORTED_CHAINS } from './constants/contracts'
 import {MarketCard} from './components/MarketCard'
 import type { Market } from './types/market'
+import { config } from './configs'
 import BitguessAbi from './abi/BitGuess.json'
 import UsdcAbi from './abi/MockUSDC.json'
-import { config } from './configs'
-import { writeContract, waitForTransactionReceipt } from '@wagmi/core'
+
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
