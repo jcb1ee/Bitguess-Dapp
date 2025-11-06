@@ -7,13 +7,13 @@ type ChainContracts = {
 export const SUPPORTED_CHAINS: Record<number, ChainContracts> = {
   11155111: {
     name: 'Sepolia',
-    bitguess: '0xYourBitGuessAddressOnSepolia',
-    usdc: '0xYourUSDCAddressOnSepolia',
+    bitguess: '0xCDc2CA6aDda9a24448559f94F756776cd09b631e',
+    usdc: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
   },
   31337: {
     name: 'Anvil',
-    bitguess: '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0', // TODO: update
-    usdc: '0x5fbdb2315678afecb367f032d93f642f64180aa3', // TODO: update
+    bitguess: '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0',
+    usdc: '0x5fbdb2315678afecb367f032d93f642f64180aa3',
   },
   // TODO: add support for Polygon Amoy
   80002: {
