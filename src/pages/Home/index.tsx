@@ -67,7 +67,7 @@ function Home() {
     setShowModal(false)
 
     try {
-      setLoadingMessage('Approving USDC...')
+      setLoadingMessage('Approving 1 USDC Market Creation Fee...')
       const approveTx = await  writeContract(config, {
         abi: UsdcAbi,
         address: contracts.usdc as `0x${string}`,

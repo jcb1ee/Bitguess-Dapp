@@ -8,6 +8,7 @@ import BitguessAbi from '../abi/BitGuess.json'
 import UsdcAbi from '../abi/MockUSDC.json'
 import { config } from '../configs'
 import { fetchClaimedReward } from '../graph/graphService'
+import { useLoading } from '../context/LoadingContext'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -45,6 +46,8 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
 
   const [claimable, setClaimable] = useState<bigint>(0n)
   const [claimedReward, setClaimedReward] = useState<number | null>(null)
+  
+  const { setLoadingMessage } = useLoading()
 
   useEffect(() => {
     if (market.resolved && address) {
@@ -81,6 +84,8 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
       if (!input) return
       const amount = parseUnits(input, 6) // 6 decimals for USDC
 
+      setLoadingMessage('Approving USDC Stake...')
+
       // Step 1: Approve USDC
       const approveTx = await writeContract(config, {
         abi: UsdcAbi,
@@ -89,6 +94,8 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
         args: [contracts.bitguess, amount],
       })
       await waitForTransactionReceipt(config, { hash: approveTx })
+
+      setLoadingMessage('Creating Your Stake...')
 
       // Step 2: Stake on market
       const stakeTx = await writeContract(config, {
@@ -103,6 +110,8 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
     } catch (err) {
       console.error('Error staking on market:', err)
       alert('❌ Staking failed. See console.')
+    } finally {
+      setLoadingMessage(null)
     }
   }
 
