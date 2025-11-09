@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { WagmiProvider } from 'wagmi'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { config } from './configs.ts'
+import { LoadingProvider } from './context/LoadingContext'
 
 import {
   QueryClient,
@@ -21,7 +22,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <WagmiProvider config={config}>
         <RainbowKitProvider>
-          <App />
+          <LoadingProvider>
+            <App />
+          </LoadingProvider>
         </RainbowKitProvider>
       </WagmiProvider>
     </QueryClientProvider>

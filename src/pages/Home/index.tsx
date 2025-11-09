@@ -9,6 +9,7 @@ import type { Market } from '../../types/market'
 import { config } from '../../configs'
 import BitguessAbi from '../../abi/BitGuess.json'
 import UsdcAbi from '../../abi/MockUSDC.json'
+import { useLoading } from '../../context/LoadingContext'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -24,6 +25,8 @@ function Home() {
   const [title, setTitle] = useState('')
   const [targetPrice, setTargetPrice] = useState('')
   const [deadline, setDeadline] = useState('')
+
+  const { setLoadingMessage } = useLoading()
 
   const [markets, setMarkets] = useState<Market[]>([])
     useEffect(() => {
@@ -61,8 +64,10 @@ function Home() {
       alert('Deadline must be at least 10 minutes from now.');
       return;
     }
+    setShowModal(false)
 
     try {
+      setLoadingMessage('Approving USDC...')
       const approveTx = await  writeContract(config, {
         abi: UsdcAbi,
         address: contracts.usdc as `0x${string}`,
@@ -73,6 +78,7 @@ function Home() {
       const approveReceipt = await waitForTransactionReceipt(config, { hash: approveTx })
       console.log('✅ USDC approved receipt:', approveReceipt)
 
+      setLoadingMessage('Creating Market...')
       const createTx = await writeContract(config, {
         abi: BitguessAbi,
         address: contracts.bitguess as `0x${string}`,
@@ -91,9 +97,11 @@ function Home() {
       
     } catch (err) {
       console.error('Error creating market:', err)
+    } finally {
+      setLoadingMessage(null)
     }
 
-    setShowModal(false)
+    // setShowModal(false)
     setTitle('')
     setTargetPrice('')
     setDeadline('')
