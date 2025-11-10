@@ -37,6 +37,15 @@ function Home() {
       })
   }, [chainId])
 
+  const reloadMarkets = () => {
+    console.log('>>>>')
+    fetchAllMarkets(chainId)
+      .then(setMarkets)
+      .catch(err => {
+        console.error('Failed to fetch markets:', err)
+      })
+  }
+
   const handleCreateClick = () => {
     if (!isConnected || chainName === 'Unsupported Chain') {
       alert('Connect wallet and switch to a supported network.')
@@ -98,6 +107,7 @@ function Home() {
     } catch (err) {
       console.error('Error creating market:', err)
     } finally {
+      reloadMarkets()
       setLoadingMessage(null)
     }
 
@@ -133,6 +143,7 @@ function Home() {
               outcome: market.outcome ? 'YES' : 'NO',
             }}
             contracts={contracts}
+            reloadMarkets={reloadMarkets}
           />
         ))}
         </div>

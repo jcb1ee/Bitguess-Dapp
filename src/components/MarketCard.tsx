@@ -32,9 +32,10 @@ type MarketCardProps = {
     bitguess: string
     usdc: string
   }
+  reloadMarkets: () => void
 }
 
-export function MarketCard({ market, contracts }: MarketCardProps) {
+export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps) {
   const { isConnected, address } = useAccount()
   const chainId = useChainId()
   const OUTCOME_YES = 0;
@@ -112,6 +113,7 @@ export function MarketCard({ market, contracts }: MarketCardProps) {
       alert('❌ Staking failed. See console.')
     } finally {
       setLoadingMessage(null)
+      reloadMarkets()
     }
   }
 
