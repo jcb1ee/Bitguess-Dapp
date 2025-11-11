@@ -38,7 +38,6 @@ function Home() {
   }, [chainId])
 
   const reloadMarkets = () => {
-    console.log('>>>>')
     fetchAllMarkets(chainId)
       .then(setMarkets)
       .catch(err => {
@@ -65,11 +64,12 @@ function Home() {
       return
     }
 
-    const deadlineTime = dayjs(deadline).utc().valueOf(); // UTC timestamp in ms
-    const now = dayjs().utc().valueOf();
-    const tenMinutes = 10 * 60 * 1000;
+    const deadlineTime = dayjs(deadline);
+    console.log(deadlineTime)
+    const now = dayjs();
+    const tenMinutes = now.add(10, 'minute');
 
-    if (deadlineTime - now < tenMinutes) {
+    if (deadlineTime.isBefore(tenMinutes)) {
       alert('Deadline must be at least 10 minutes from now.');
       return;
     }
@@ -95,8 +95,9 @@ function Home() {
         args: [
           title,
           BigInt(targetPrice), // TODO: handle decimals
-          BigInt(dayjs(deadline).unix())  // convert to UNIX timestamp,
+          BigInt(deadlineTime.utc().unix()),
         ],
+        gas: 5_000_000n,
       })
       const receipt = await waitForTransactionReceipt(config, { hash: createTx })
       console.log('✅ Market created:', receipt)
@@ -174,6 +175,7 @@ function Home() {
           <input
             type='datetime-local'
             value={deadline}
+            min={dayjs().add(10, 'minute').format('YYYY-MM-DDTHH:mm')}
             onChange={(e) => setDeadline(e.target.value)}
             className='w-full p-2 rounded bg-neutral-900 text-white border border-white/20 mb-6'
           />

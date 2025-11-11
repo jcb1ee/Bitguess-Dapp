@@ -66,7 +66,6 @@ export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps
             functionName: 'claimableAmount',
             args: [BigInt(market.id), address],
           })
-
           setClaimable(claimableAmount as bigint)
         } catch (err) {
           console.error('Error checking claim status:', err)
@@ -171,7 +170,7 @@ export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps
 
       {/* Info Row */}
       <div className='text-sm text-gray-400 flex flex-wrap gap-4'>
-        <span>⏰ Deadline: {dayjs.unix(Number(market.deadline)).utc().format('YYYY-MM-DD HH:mm')} (UTC)</span>
+        <span>⏰ Deadline: {dayjs.unix(Number(market.deadline)).format('YYYY-MM-DD HH:mm')}</span>
         <span className='text-sm text-gray-400'>
           🕒 Time Left: {getTimeLeft(Number(market.deadline))}
         </span>
