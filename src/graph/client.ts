@@ -14,9 +14,8 @@ export const SUBGRAPH_URLS: Record<number, SubgraphUrl> = {
     name: 'Sepolia',
     url: new GraphQLClient('https://api.studio.thegraph.com/query/1714670/bitguess/version/latest'),
   },
-  // TODO: add Polygon Amoy Subgraph
   80002: {
     name: 'PolygonAmoy',
-    url: new GraphQLClient('https://api.studio.thegraph.com/query/48110/bitguess-polygon/version/latest'),
+    url: new GraphQLClient('https://api.studio.thegraph.com/query/1714670/bitguess-amoi/version/latest'),
   },
 }

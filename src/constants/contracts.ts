@@ -18,7 +18,7 @@ export const SUPPORTED_CHAINS: Record<number, ChainContracts> = {
   // TODO: add support for Polygon Amoy
   80002: {
     name: 'PolygonAmoy',
-    bitguess: '0xYourBitGuessAddressOnPolygon',
-    usdc: '0xYourUSDCAddressOnPolygon',
+    bitguess: '0x5E192C6B73b250B729aed610E0D30b452637273A',
+    usdc: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
   },
 }
