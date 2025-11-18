@@ -107,6 +107,7 @@ function Home() {
       
     } catch (err) {
       console.error('Error creating market:', err)
+      alert('Error Occured')
     } finally {
       reloadMarkets()
       setLoadingMessage(null)
