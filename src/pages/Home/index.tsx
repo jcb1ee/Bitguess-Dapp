@@ -30,16 +30,16 @@ function Home() {
 
   const [markets, setMarkets] = useState<Market[]>([])
     useEffect(() => {
-    fetchAllMarkets(chainId)
-      .then(setMarkets)
-      .catch(err => {
-        console.error('Failed to fetch markets:', err)
-      })
+      fetchAllMarkets(chainId)
+        .then((ms) => setMarkets([...ms].sort((a, b) => Number(b.id) - Number(a.id))))
+        .catch(err => {
+          console.error('Failed to fetch markets:', err)
+        })
   }, [chainId])
 
   const reloadMarkets = () => {
     fetchAllMarkets(chainId)
-      .then(setMarkets)
+      .then((ms) => setMarkets([...ms].sort((a, b) => Number(b.id) - Number(a.id))))
       .catch(err => {
         console.error('Failed to fetch markets:', err)
       })
