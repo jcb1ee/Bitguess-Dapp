@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAccount, useChainId } from 'wagmi'
 import { writeContract, waitForTransactionReceipt } from 'wagmi/actions'
+import { parseUnits } from 'viem'
 
 import { fetchAllMarkets } from '../../graph/graphService'
 import { SUPPORTED_CHAINS } from '../../constants/contracts'
@@ -83,18 +84,20 @@ function Home() {
         functionName: 'approve',
         args: [contracts.bitguess, BigInt(1e6)], // 1 USDC
         account: address,
+        gas: 5_000_000n,
       })
       const approveReceipt = await waitForTransactionReceipt(config, { hash: approveTx })
       console.log('✅ USDC approved receipt:', approveReceipt)
 
       setLoadingMessage('Creating Market...')
+      const parsedTargetPrice = parseUnits(targetPrice.toString(), 8)
       const createTx = await writeContract(config, {
         abi: BitguessAbi,
         address: contracts.bitguess as `0x${string}`,
         functionName: 'createMarket',
         args: [
           title,
-          BigInt(targetPrice), // TODO: handle decimals
+          parsedTargetPrice,
           BigInt(deadlineTime.utc().unix()),
         ],
         gas: 5_000_000n,

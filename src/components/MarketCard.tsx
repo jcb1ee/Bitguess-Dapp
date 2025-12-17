@@ -137,12 +137,14 @@ export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps
   }
 
   async function handleClaim() {
+    setLoadingMessage('Claiming winnings...')
     try {
       const txHash = await writeContract(config, {
         abi: BitguessAbi,
         address: contracts.bitguess as `0x${string}`,
         functionName: 'claimWinnings',
         args: [market.id],
+        gas: 5_000_000n,
       })
 
       const receipt = await waitForTransactionReceipt(config, { hash: txHash })
@@ -153,6 +155,8 @@ export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps
     } catch (err) {
       console.error('❌ Error claiming winnings:', err)
       alert('Error claiming winnings.')
+    } finally {
+      setLoadingMessage(null)
     }
   }
 
@@ -174,7 +178,7 @@ export function MarketCard({ market, contracts, reloadMarkets }: MarketCardProps
         <span className='text-sm text-gray-400'>
           🕒 Time Left: {getTimeLeft(Number(market.deadline))}
         </span>
-        <span>🎯 Target Price: {market.price} USDC</span>
+        <span>🎯 Target Price: {formatUnits(BigInt(market.price), 8)} </span>
         <span>💰 Volume: {formatUnits(BigInt(market.volume), 6)} USDC</span>
         <span>✅ Yes: {market.yesQty}</span>
         <span>❌ No: {market.noQty}</span>
