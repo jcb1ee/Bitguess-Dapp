@@ -17,7 +17,7 @@ export const SUPPORTED_CHAINS: Record<number, ChainContracts> = {
   },
   80002: {
     name: 'PolygonAmoy',
-    bitguess: '0x5E192C6B73b250B729aed610E0D30b452637273A',
+    bitguess: '0x89abd5077d770f5149428736ac4dd6bf9070580f',
     usdc: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
   },
 }
