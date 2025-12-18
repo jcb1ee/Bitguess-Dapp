@@ -7,7 +7,7 @@ type ChainContracts = {
 export const SUPPORTED_CHAINS: Record<number, ChainContracts> = {
   11155111: {
     name: 'Sepolia',
-    bitguess: '0x8243C79810Eb84e03Bf2A29FdE4E6C841199Ea21',
+    bitguess: '0xb5f421de908071e763ea621fc37a61ec4959d242',
     usdc: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
   },
   31337: {
