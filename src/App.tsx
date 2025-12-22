@@ -5,7 +5,7 @@ import Home from './pages/Home'
 function App() {
 
   return (
-    <Router>
+    <Router basename='/Bitguess-Dapp'>
       <Routes>        
         <Route element={<Layout />}>
           <Route path='/' element={<Home />} />
