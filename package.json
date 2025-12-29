@@ -1,7 +1,7 @@
 {
   "name": "bitguess-dapp",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://jcb1ee.github.io/Bitguess-Dapp",
   "type": "module",
   "scripts": {
